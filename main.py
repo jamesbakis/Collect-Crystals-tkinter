@@ -1,47 +1,112 @@
 import tkinter as tk
 from square import square
-import enum
+import random
 
 cells = []
 pos = [3, 3]
 
+points = [0]
+
+enemy_1 = [0, 0]
+
+enemy_2 = [0, 6]
+
+enemy_3 = [6, 3]
+
+crystal = [0, 3]
+
+enemy_all = (enemy_1, enemy_2, enemy_3)
+
+units_all = (enemy_1, enemy_2, enemy_3, pos)
+
+def enemy_collision():
+    for enemy in enemy_all:
+        if pos[0] == enemy[0] and pos[1] == enemy[1]:
+            exit()
+
+def crystal_collision(points):    
+    for unit in units_all:
+        if crystal[0] == unit[0] and crystal[1] == unit[1]:
+            if unit == pos:
+                points[0] += 1
+            x = random.randint(0, 6)
+            y = random.randint(0, 6)
+            while [x, y] in units_all:
+                x = random.randint(0, 6)
+                y = random.randint(0, 6)
+            cells[x][y].set_crystal()
+            break
 
 
-def move_right(direction):    
+def move_right(direction): 
+    move_enemy(enemy_all)   
     cells[pos[0]][pos[1]].set_empty()
     if pos[1] == 6:
         pos[1] = 0
     else:
         pos[1] += 1
     cells[pos[0]][pos[1]].set_player()
-    print("right")
+    crystal_collision(points)
+    enemy_collision()
 
 def move_left(direction):   
+    move_enemy(enemy_all) 
     cells[pos[0]][pos[1]].set_empty()
     if pos[1] == 0:
         pos[1] =6
     else:
         pos[1] -= 1
     cells[pos[0]][pos[1]].set_player()
-    print("left")
+    crystal_collision(points)
+    enemy_collision()
 
 def move_up(direction):   
+    move_enemy(enemy_all) 
     cells[pos[0]][pos[1]].set_empty()
     if pos[0] == 0:
         pos[0] = 6
     else:
         pos[0] -= 1
     cells[pos[0]][pos[1]].set_player()
-    print("up")
+    crystal_collision(points)
+    enemy_collision()
 
 def move_down(direction):
+    move_enemy(enemy_all) 
     cells[pos[0]][pos[1]].set_empty()
     if pos[0] == 6:
         pos[0] = 0
     else:
         pos[0] += 1
     cells[pos[0]][pos[1]].set_player()
-    print("down")
+    crystal_collision(points)
+    enemy_collision()
+
+def move_enemy(enemies):
+    for enemy in enemies:
+        direction = random.randint(0, 3)
+        cells[enemy[0]][enemy[1]].set_empty()
+        if direction == 0: #left
+            if enemy[1] == 0:
+                enemy[1] = 6
+            else:
+                enemy[1] -= 1
+        elif direction == 1: #right
+            if enemy[1] == 6:
+                enemy[1] = 0
+            else:
+                enemy[1] += 1
+        elif direction == 2: #up
+            if enemy[0] == 0:
+                enemy[0] = 6
+            else:
+                enemy[0] -= 1
+        elif direction == 3: #down
+            if enemy[0] == 6:
+                enemy[0] = 0 
+            else:
+                enemy[0] += 1   
+        cells[enemy[0]][enemy[1]].set_enemy()
 
 def main():
     print("hello")
@@ -54,10 +119,6 @@ def main():
     
     # label1 = tk.Label(root, text="Collect crystals!")
     # label2 = tk.Label(root, text="Avoid enemies!")
-    
-    # label1.pack()
-    # label2.pack()
-    
 
     for row in range(7):
         cells.append([])
@@ -65,6 +126,10 @@ def main():
             cell = square(root, row, col)
             if row==col==3:
                  cell.set_player()
+            elif (row == 0 and col == 0) or (row == 0 and col == 6) or (row == 6 and col == 3):
+                cell.set_enemy()
+            elif (row == 0 and col ==3):
+                cell.set_crystal()
             else:
                 cell.set_empty()
             cells[row].append(cell)
