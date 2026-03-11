@@ -4,27 +4,21 @@ import random
 
 cells = []
 pos = [3, 3]
-
+root = tk.Tk()
 game_over = False
-
 points = [0]
-
 enemy_1 = [0, 0]
-
 enemy_2 = [0, 6]
-
 enemy_3 = [6, 3]
-
 crystal = [0, 3]
-
 enemy_all = (enemy_1, enemy_2, enemy_3)
-
 units_all = (enemy_1, enemy_2, enemy_3, pos)
 
 def enemy_collision():
     for enemy in enemy_all:
         if pos[0] == enemy[0] and pos[1] == enemy[1]:
-            score.configure(text="GAME OVER")
+            score.configure(text="GAME OVER \nPRESS \"R\" TO RESTART")
+            score.pack_forget() 
 
             global game_over
             game_over = True
@@ -150,9 +144,32 @@ def move_enemy(enemies):
         
         cells[enemy[0]][enemy[1]].set_enemy()
 
+def reset_game(reset_button):
+    global game_over, root, pos, enemy_1, enemy_2, enemy_3, crystal, enemy_all, units_all, points
+    game_over = False
+    points = [0]
+    pos = [3, 3]
+    enemy_1 = [0, 0]
+    enemy_2 = [0, 6]
+    enemy_3 = [6, 3]
+    crystal = [0, 3]
+    enemy_all = (enemy_1, enemy_2, enemy_3)
+    units_all = (enemy_1, enemy_2, enemy_3, pos)
+    score.configure(text="Score: " + str(points[0]))
+    for row in range(7):
+        for col in range(7):
+            if row==col==3:
+                 cells[row][col].set_player()
+            elif (row == 0 and col == 0) or (row == 0 and col == 6) or (row == 6 and col == 3):
+                cells[row][col].set_enemy()
+            elif (row == 0 and col ==3):
+                cells[row][col].set_crystal()
+            else:
+                cells[row][col].set_empty()
+
 def main():
     print("hello")
-    root = tk.Tk()
+    global root
     root.title("Collect Crystals")
     root.configure(background="red")
     root.geometry("700x700+300+0")
@@ -175,12 +192,13 @@ def main():
             cells[row].append(cell)
     global score
     score = tk.Label(root, text="Score: " + str(points[0]))
-    score.grid(row=3, column=3)
+    score.place(relx=0.5, rely=0.5, anchor='center')
     score.tkraise() 
     root.bind("<Right>", move_right)
     root.bind("<Left>", move_left)
     root.bind("<Up>", move_up)
     root.bind("<Down>", move_down)
+    root.bind("<r>", reset_game)
 
     root.mainloop()
 
